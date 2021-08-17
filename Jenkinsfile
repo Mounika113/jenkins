@@ -34,7 +34,7 @@ pipeline {
   stage('Publish image to Docker Hub') {
           
             steps {
-        withDockerRegistry([ credentialsId: "DOCKER_HUB", url: "https://registry.hub.docker.com" ]) {
+        withDockerRegistry([ credentialsId: "Docker_Hub", url: "https://registry.hub.docker.com" ]) {
           sh  'docker push sairagamounika/jenkins:latest'
           sh  'docker push sairagamounika/jenkins:$BUILD_NUMBER'
         }
