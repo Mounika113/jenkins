@@ -3,13 +3,13 @@ pipeline {
 	
 	  tools
     {
-       maven "Maven"
+       maven "Maven.3.6.3"
     }
  stages {
       stage('checkout') {
            steps {
              
-                git branch: 'master', url: 'https://github.com/Mounika113/maven.git'
+                git branch: 'master', url: 'https://github.com/ishaqmdgcp/nexus.git'
              
           }
         }
@@ -25,37 +25,54 @@ pipeline {
            steps {
                 
                 sh 'docker build -t samplewebapp:latest .' 
-                sh 'docker tag samplewebapp sairagamounika/jenkins:latest'
+                sh 'docker tag samplewebapp ishaqmd/javaapp:latest'
                 //sh 'docker tag samplewebapp nikhilnidhi/samplewebapp:$BUILD_NUMBER'
                
           }
         }
      
-  stage('Publish image to Docker Hub') {
+  		
+	stage('Run Docker')	 {
+	
+			steps {	
+			
+			sh "docker run --name javaapp -d -p 8080:8080 ishaqmd/javaapp"
+			sh 'sleep 10'
+			
+			}
+	}
+	
+	stage('Test')	 {
+	
+			steps {	
+			sh 'curl localhost:8080/health'
+			sh 'sleep 20'
+			
+			}
+	}
+	
+	stage('Publish image to Docker Hub') {
           
             steps {
-        withDockerRegistry([ credentialsId: "Docker_Hub", url: "https://registry.hub.docker.com" ]) {
-          sh  'docker push sairagamounika/jenkins:latest'
-          sh  'docker push sairagamounika/jenkins:$BUILD_NUMBER'
+        withCredentials([string credentialsId: 'DOCKER_USER', variable: 'DOCKER_USER'), string credentialsId: 'PASSWD', variable: 'DOCKER_PASSWORD') ]) {
+          sh  'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD'
+          sh  'docker push ishaqmd/javaapp:latest'
+		  #docker push user-id/repo-name in docker-hub
+		  #make sure there's a repo in your dockerhub account and use those creds above
         }
                   
           }
         }
-     
-      stage('Run Docker container on Jenkins Agent') {
-             
-            steps 
-			{
-                sh "docker run -d -p 8008:8080 sairagamounika/jenkins"
- 
-            }
-        }
- //stage('Run Docker container on remote hosts') {
-             
-   //         steps {
-     //           sh "docker -H ssh://jenkins@172.31.28.25 run -d -p 8003:8080 ishaqmd/jenkins"
- 
-           // }
-        //}
-    }
+	
+	stage('Delete Infra')	 {
+	
+			steps {	
+			
+			sh 'docker stop javaapp'
+			sh 'docker rm javaapp'
+			
+			}
+		}
+	
 	}
+}
