@@ -9,7 +9,7 @@ pipeline {
       stage('checkout') {
            steps {
              
-                git branch: 'master', url: 'https://github.com/ishaqmdgcp/nexus.git'
+                git branch: 'master', url: 'https://github.com/Mounika113/jenkins.git'
              
           }
         }
@@ -25,7 +25,7 @@ pipeline {
            steps {
                 
                 sh 'docker build -t samplewebapp:latest .' 
-                sh 'docker tag samplewebapp ishaqmd/javaapp:latest'
+                sh 'docker tag samplewebapp sairagamounika/jenkins:latest'
                 //sh 'docker tag samplewebapp nikhilnidhi/samplewebapp:$BUILD_NUMBER'
                
           }
@@ -36,7 +36,7 @@ pipeline {
 	
 			steps {	
 			
-			sh "docker run --name javaapp -d -p 8080:8080 ishaqmd/javaapp"
+			sh "docker run --name javaapp -d -p 8080:8080 sairagamounika/jenkins"
 			sh 'sleep 10'
 			
 			}
@@ -56,7 +56,7 @@ pipeline {
             steps {
         withCredentials([string credentialsId: 'DOCKER_USER', variable: 'DOCKER_USER'), string credentialsId: 'PASSWD', variable: 'DOCKER_PASSWORD') ]) {
           sh  'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD'
-          sh  'docker push ishaqmd/javaapp:latest'
+          sh  'docker push sairagamounika/jenkins:latest'
 		  #docker push user-id/repo-name in docker-hub
 		  #make sure there's a repo in your dockerhub account and use those creds above
         }
